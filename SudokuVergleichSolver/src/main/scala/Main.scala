@@ -53,6 +53,7 @@ object Main {
     }
 
     println("--- Resolvendo um Sudoku 9x9 ---")
+    println("--- Janko At Nr 11 ---")
 
     val solver9x9 = new SudokuVergleichSolver(9)
 
