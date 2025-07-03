@@ -19,13 +19,10 @@ object Main {
   def main(args: Array[String]): Unit = {
     println("--- Resolvendo um Sudoku 4x4 ---")
 
-    // 1. Instancia o resolvedor para 4x4
     val solver4x4 = new SudokuVergleichSolver(4)
 
-    // 2. Define um puzzle 4x4
     val initialGrid4x4: Array[Array[Int]] = Array.fill(4,4)(0)
 
-    // Regras para o puzzle 4x4
     val hRels4x4: Map[(Int, Int), Char] = Map(
       (0, 0) -> '<', (0, 2) -> '>',
       (1, 0) -> '<', (1, 2) -> '>',
@@ -45,7 +42,6 @@ object Main {
     val durationMs4x4 = (System.nanoTime() - startTime4x4) / 1_000_000.0
 
 
-    // 4. Exibe o resultado...
     solutionOption4x4 match {
       case Some(solutionGrid4x4) =>
         println(">>> Solução 4x4 Encontrada! <<<")
@@ -58,15 +54,10 @@ object Main {
 
     println("--- Resolvendo um Sudoku 9x9 ---")
 
-    // 1. Instancia o resolvedor para 9x9
     val solver9x9 = new SudokuVergleichSolver(9)
 
-    // 2. Define o puzzle inicial 9x9 (todo zerado)
     val initialGrid9x9: Array[Array[Int]] = Array.fill(9, 9)(0)
 
-    // 3. Regras horizontais e verticais extraídas da imagem
-
-    // exemplo: (linha, coluna) -> '<'  significa que cell(i,j) < cell(i,j+1)
     val hRels9x9: Map[(Int, Int), Char] = Map(
       (0,0) -> '<', (0,1) -> '>', (0,3) -> '<', (0,4) -> '<', (0,6) -> '>', (0,7) -> '>',
       (1,0) -> '<', (1,1) -> '<', (1,3) -> '<', (1,4) -> '>', (1,6) -> '>', (1,7) -> '<',
@@ -79,7 +70,6 @@ object Main {
       (8,0) -> '<', (8,1) -> '>', (8,3) -> '<', (8,4) -> '<', (8,6) -> '<', (8,7) -> '>'
     )
 
-    // exemplo: (linha, coluna) -> '<'  significa que cell(i,j) < cell(i+1,j)
     val vRels9x9: Map[(Int, Int), Char] = Map(
       (0, 0) -> '>', (1, 0) -> '<', (3, 0) -> '>', (4, 0) -> '>', (6, 0) -> '>', (7, 0) -> '<',
       (0, 1) -> '<', (1, 1) -> '<', (3, 1) -> '<', (4, 1) -> '<', (6, 1) -> '>', (7, 1) -> '<',
@@ -98,7 +88,6 @@ object Main {
     val solutionOption9x9 = solver9x9.solve(possibilities9x9, hRels9x9, vRels9x9)
     val durationMs9x9 = (System.nanoTime() - startTime9x9) / 1_000_000.0
 
-    // 4. Exibe o resultado...
     solutionOption9x9 match {
       case Some(solutionGrid9x9) =>
         println(">>> Solução 9x9 Encontrada! <<<")

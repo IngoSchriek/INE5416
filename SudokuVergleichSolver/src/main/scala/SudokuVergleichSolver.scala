@@ -4,19 +4,19 @@ import scala.util.boundary.break
 import scala.math.sqrt
 
 class SudokuVergleichSolver(val size: Int) {
-  type PossibilitiesGrid = Array[Array[Set[Int]]]
-  type RelationsMap = Map[(Int, Int), Char]
+  private type PossibilitiesGrid = Array[Array[Set[Int]]]
+  private type RelationsMap = Map[(Int, Int), Char]
 
-  // Valida se o tamanho é um quadrado perfeito (4, 9, 16, etc.)
+  
   val boxSize: Int = sqrt(size).toInt
   require(boxSize * boxSize == size, "O tamanho do grid deve ser um quadrado perfeito (4, 9, 16...).")
 
-  // Deriva o conjunto de números possíveis
-  val allPossible: Set[Int] = (1 to size).toSet
+  
+  private val allPossible: Set[Int] = (1 to size).toSet
 
 
 
-  // --- FUNÇÕES PRINCIPAIS ---
+  
 
   def solve(grid: PossibilitiesGrid, hRels: RelationsMap, vRels: RelationsMap): Option[PossibilitiesGrid] = {
     boundary {
@@ -29,7 +29,7 @@ class SudokuVergleichSolver(val size: Int) {
 
       for (r <- 0 until size; c <- 0 until size) {
         val possibilities = propagatedGrid(r)(c)
-        if (possibilities.isEmpty) break(None) // Inválido
+        if (possibilities.isEmpty) break(None) 
 
         if (possibilities.size > 1) {
           allSingleton = false
@@ -42,7 +42,7 @@ class SudokuVergleichSolver(val size: Int) {
       }
 
       if (allSingleton) {
-        break(Some(propagatedGrid)) // Resolvido
+        break(Some(propagatedGrid)) 
       } else {
         val possibilitiesToTry = propagatedGrid(rowMRV)(colMRV)
         for (p <- possibilitiesToTry) {
@@ -53,12 +53,12 @@ class SudokuVergleichSolver(val size: Int) {
             break(result)
           }
         }
-        break(None) // Beco sem saída
+        break(None) 
       }
     }
   }
 
-  def initialPropagation(grid: PossibilitiesGrid, hRels: RelationsMap, vRels: RelationsMap): PossibilitiesGrid = {
+  private def initialPropagation(grid: PossibilitiesGrid, hRels: RelationsMap, vRels: RelationsMap): PossibilitiesGrid = {
     @tailrec
     def loop(currentGrid: PossibilitiesGrid): PossibilitiesGrid = {
       val (gridAfterRows, changedByRows) = applyRowRules(currentGrid)
@@ -75,7 +75,7 @@ class SudokuVergleichSolver(val size: Int) {
     loop(grid)
   }
 
-  // --- FUNÇÕES DE REGRAS (COM A CORREÇÃO DO '--') ---
+  
 
   private def applyRowRules(grid: PossibilitiesGrid): (PossibilitiesGrid, Boolean) = {
     var changed = false
@@ -85,7 +85,7 @@ class SudokuVergleichSolver(val size: Int) {
       if (solvedValues.nonEmpty) {
         for (c <- 0 until size if newGrid(r)(c).size > 1) {
           val initialSize = newGrid(r)(c).size
-          newGrid(r)(c) = newGrid(r)(c) -- solvedValues // CORRIGIDO
+          newGrid(r)(c) = newGrid(r)(c) -- solvedValues 
           if (newGrid(r)(c).size < initialSize) changed = true
         }
       }
@@ -102,7 +102,7 @@ class SudokuVergleichSolver(val size: Int) {
       if (solvedValues.nonEmpty) {
         for (r <- 0 until size if newGrid(r)(c).size > 1) {
           val initialSize = newGrid(r)(c).size
-          newGrid(r)(c) = newGrid(r)(c) -- solvedValues // CORRIGIDO
+          newGrid(r)(c) = newGrid(r)(c) -- solvedValues 
           if (newGrid(r)(c).size < initialSize) changed = true
         }
       }
@@ -136,47 +136,47 @@ class SudokuVergleichSolver(val size: Int) {
     def updateChanged(initialSize: Int, finalSize: Int): Unit = if (finalSize < initialSize) changed = true
 
     for (r <- 0 until size; c <- 0 until size) {
-      // Relações Horizontais
+      
       hRels.get((r, c)).foreach { relation =>
         val left = newGrid(r)(c)
         val right = newGrid(r)(c + 1)
         val (s1, s2) = (left.size, right.size)
 
         relation match {
-          case '>' => // left > right
+          case '>' => 
             if (right.nonEmpty) newGrid(r)(c) = left -- (1 to right.min)
             if (left.nonEmpty) newGrid(r)(c + 1) = right -- (left.max to size)
-          case '<' => // left < right
+          case '<' => 
             if (right.nonEmpty) newGrid(r)(c) = left -- (right.max to size)
             if (left.nonEmpty) newGrid(r)(c + 1) = right -- (1 to left.min)
         }
-        updateChanged(s1, newGrid(r)(c).size);
+        updateChanged(s1, newGrid(r)(c).size)
         updateChanged(s2, newGrid(r)(c + 1).size)
       }
 
-      // Relações Verticais
+      
       vRels.get((r, c)).foreach { relation =>
         val top = newGrid(r)(c)
         val bottom = newGrid(r + 1)(c)
         val (s1, s2) = (top.size, bottom.size)
 
         relation match {
-          case '>' => // top > bottom
+          case '>' => 
             if (bottom.nonEmpty) newGrid(r)(c) = top -- (1 to bottom.min)
             if (top.nonEmpty) newGrid(r + 1)(c) = bottom -- (top.max to size)
-          case '<' => // top < bottom
+          case '<' => 
             if (bottom.nonEmpty) newGrid(r)(c) = top -- (bottom.max to size)
             if (top.nonEmpty) newGrid(r + 1)(c) = bottom -- (1 to top.min)
         }
-        updateChanged(s1, newGrid(r)(c).size);
+        updateChanged(s1, newGrid(r)(c).size)
         updateChanged(s2, newGrid(r + 1)(c).size)
       }
     }
     (newGrid, changed)
   }
-  // --- FUNÇÕES DE CONFIGURAÇÃO E EXIBIÇÃO ---
+  
 
-  // Depois (dentro da classe)
+  
   def generatePossibilitiesMatrix(grid: Array[Array[Int]]): PossibilitiesGrid = {
     val possibilitiesMatrix = Array.ofDim[Set[Int]](size, size)
     for (r <- 0 until size; c <- 0 until size) {
