@@ -80,16 +80,14 @@ pruneByCols grid regions =
 -- Se a célula tiver mais de uma possibilidade, para cada par de células vizinhas, se uma delas estiver resolvida
 -- (for um singleton), remove seu valor das possibilidades da outra.
 pruneByRows :: PossibilityGrid -> PossibilityGrid
-pruneByRows = map (pruneRowBidirectional)
+pruneByRows = map pruneRow
   where
-    pruneRow' [] = []
-    pruneRow' [x] = [x]
-    pruneRow' (a:b:rest) =
+    pruneRow [] = []
+    pruneRow [x] = [x]
+    pruneRow (a:b:rest) =
       let a' = if length b == 1 then filter (/= head b) a else a
           b' = if length a == 1 then filter (/= head a) b else b
-      in a' : pruneRow' (b' : rest)
-    pruneRowBidirectional :: [[Int]] -> [[Int]] -- se a poda de b em a abre uma nova possibilidade para b, essa informação não voltaria para a sem ser bidirecional
-    pruneRowBidirectional row = reverse (pruneRow' (reverse (pruneRow' row)))
+      in a' : pruneRow (b' : rest)
 
 -- Prepara o tabuleiro inicial. Para cada célula vazia, preenche com as possibilidades
 -- corretas [1..N], onde N é o tamanho da região da célula.

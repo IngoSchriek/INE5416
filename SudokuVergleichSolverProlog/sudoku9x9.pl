@@ -1,6 +1,7 @@
 % https://www.janko.at/Raetsel/Sudoku/Vergleich/190.a.htm
 % --- Versão Modificada e Comentada ---
 
+% Constraint Logic Programming over Finite Domains. Delimita dominio das variaveis lógicas Cij
 :- use_module(library(clpfd)).
 
 % Predicado principal para executar.
@@ -16,7 +17,7 @@ imprimir_grade([Linha | Resto]) :-
     write(Linha), nl,
     imprimir_grade(Resto).
 
-% Define todas as restrições e resolve o puzzle.
+% Define todas as restrições e resolve o puzzle. Faz ordenamento via definição da matriz, regras de dominio e execução de fato
 resolver_sudoku_9x9(Grade) :-
     % 1. Definir a estrutura da grade 9x9
     Grade = [[C11, C12, C13, C14, C15, C16, C17, C18, C19],
@@ -29,10 +30,10 @@ resolver_sudoku_9x9(Grade) :-
              [C81, C82, C83, C84, C85, C86, C87, C88, C89],
              [C91, C92, C93, C94, C95, C96, C97, C98, C99]],
 
-    % 2. Agrupar todas as 81 células em uma lista
+    % 2. Agrupar todas as 81 células em uma lista simples
     flatten(Grade, TodasAsCelulas),
 
-    % 3. Restrição de Domínio: cada célula deve ser um valor de 1 a 9
+    % 3. Restrição de Domínio: cada célula deve ser um valor de 1 a 9 (só vale pro cenário atual, a ideia geral é 1 ... n)
     TodasAsCelulas ins 1..9,
 
     % 4. Restrições de Comparação (Específicas do Puzzle #190)

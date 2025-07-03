@@ -27,6 +27,7 @@ class SudokuVergleichSolver(val size: Int) {
       var rowMRV = -1
       var colMRV = -1
 
+      // Busca MRV enquanto verifica solução
       for (r <- 0 until size; c <- 0 until size) {
         val possibilities = propagatedGrid(r)(c)
         if (possibilities.isEmpty) break(None) 
@@ -36,11 +37,12 @@ class SudokuVergleichSolver(val size: Int) {
           if (possibilities.size < minimumRemainingValue) {
             minimumRemainingValue = possibilities.size
             rowMRV = r
-            colMRV = c
+            colMRV = c  
           }
         }
       }
 
+      //Se encontra solução, finaliza e retorna para main. Se não continua abrindo ramificações
       if (allSingleton) {
         break(Some(propagatedGrid)) 
       } else {
@@ -58,6 +60,8 @@ class SudokuVergleichSolver(val size: Int) {
     }
   }
 
+
+  //Aplica regras do Verleigch sobre o grid, reduzindo o dominio de possibilidades do problema
   private def initialPropagation(grid: PossibilitiesGrid, hRels: RelationsMap, vRels: RelationsMap): PossibilitiesGrid = {
     @tailrec
     def loop(currentGrid: PossibilitiesGrid): PossibilitiesGrid = {
@@ -76,7 +80,7 @@ class SudokuVergleichSolver(val size: Int) {
   }
 
   
-
+  //Aplica as regras por linha, verificando a existencia de valores na linha
   private def applyRowRules(grid: PossibilitiesGrid): (PossibilitiesGrid, Boolean) = {
     var changed = false
     val newGrid = grid.map(_.clone)
@@ -93,6 +97,7 @@ class SudokuVergleichSolver(val size: Int) {
     (newGrid, changed)
   }
 
+  //Aplica as regras por coluna, verificando a existencia de valores por coluna
   private def applyColRules(grid: PossibilitiesGrid): (PossibilitiesGrid, Boolean) = {
     var changed = false
     val newGrid = grid.map(_.clone)
@@ -110,6 +115,7 @@ class SudokuVergleichSolver(val size: Int) {
     (newGrid, changed)
   }
 
+  //Aplica as regras por quadrante, verificando a existencia pelas seções NxM
   private def applyQuadrantRules(grid: PossibilitiesGrid): (PossibilitiesGrid, Boolean) = {
     var changed = false
     val newGrid = grid.map(_.clone)
@@ -129,6 +135,7 @@ class SudokuVergleichSolver(val size: Int) {
     (newGrid, changed)
   }
 
+  //Define regras de comparação relacionais do Vergleich
   private def applyComparisonRules(grid: PossibilitiesGrid, hRels: RelationsMap, vRels: RelationsMap): (PossibilitiesGrid, Boolean) = {
     var changed = false
     val newGrid = grid.map(_.clone)
@@ -136,7 +143,8 @@ class SudokuVergleichSolver(val size: Int) {
     def updateChanged(initialSize: Int, finalSize: Int): Unit = if (finalSize < initialSize) changed = true
 
     for (r <- 0 until size; c <- 0 until size) {
-      
+
+      //Aplica regras por via horizontal
       hRels.get((r, c)).foreach { relation =>
         val left = newGrid(r)(c)
         val right = newGrid(r)(c + 1)
@@ -154,7 +162,7 @@ class SudokuVergleichSolver(val size: Int) {
         updateChanged(s2, newGrid(r)(c + 1).size)
       }
 
-      
+      //Aplica regras por via vertical
       vRels.get((r, c)).foreach { relation =>
         val top = newGrid(r)(c)
         val bottom = newGrid(r + 1)(c)
@@ -176,7 +184,7 @@ class SudokuVergleichSolver(val size: Int) {
   }
   
 
-  
+  //Gera conjunto com todas possibilidades para cada célula vazia, se já tiver valor preenchido mantém
   def generatePossibilitiesMatrix(grid: Array[Array[Int]]): PossibilitiesGrid = {
     val possibilitiesMatrix = Array.ofDim[Set[Int]](size, size)
     for (r <- 0 until size; c <- 0 until size) {
