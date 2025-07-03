@@ -1,67 +1,77 @@
 % https://www.janko.at/Raetsel/Sudoku/Vergleich/190.a.htm
+% --- Versão Modificada e Comentada ---
 
 :- use_module(library(clpfd)).
 
-% predicado para exibir a matriz de solução linha por linha
-exibirMatriz([]).
-exibirMatriz([L|Ls]) :-
-    write(L), nl,
-    exibirMatriz(Ls).
+% Predicado principal para executar.
+% Consulta no SWI-Prolog: ?- iniciar.
+iniciar :-
+    resolver_sudoku_9x9(Grade),
+    write('--- Solucao do Sudoku Comparativo 9x9 ---'), nl,
+    imprimir_grade(Grade).
 
-solucao(MatrizSolucao) :-
-    MatrizSolucao = [[X11, X12, X13,      X14, X15, X16,      X17, X18, X19],
-                     [X21, X22, X23,      X24, X25, X26,      X27, X28, X29],
-                     [X31, X32, X33,      X34, X35, X36,      X37, X38, X39],
+% Imprime a grade de forma legível, linha por linha.
+imprimir_grade([]).
+imprimir_grade([Linha | Resto]) :-
+    write(Linha), nl,
+    imprimir_grade(Resto).
 
-                     [X41, X42, X43,      X44, X45, X46,      X47, X48, X49],
-                     [X51, X52, X53,      X54, X55, X56,      X57, X58, X59],
-                     [X61, X62, X63,      X64, X65, X66,      X67, X68, X69],
-                     
-                     [X71, X72, X73,      X74, X75, X76,      X77, X78, X79],
-                     [X81, X82, X83,      X84, X85, X86,      X87, X88, X89],
-                     [X91, X92, X93,      X94, X95, X96,      X97, X98, X99]],
-    
-    % transforma a matriz em uma lista contendo todos os elementos da matriz
-    flatten(MatrizSolucao, Elementos),
-    % elementos devem assumir valores de 1 a 9
-    Elementos ins 1..9,
+% Define todas as restrições e resolve o puzzle.
+resolver_sudoku_9x9(Grade) :-
+    % 1. Definir a estrutura da grade 9x9
+    Grade = [[C11, C12, C13, C14, C15, C16, C17, C18, C19],
+             [C21, C22, C23, C24, C25, C26, C27, C28, C29],
+             [C31, C32, C33, C34, C35, C36, C37, C38, C39],
+             [C41, C42, C43, C44, C45, C46, C47, C48, C49],
+             [C51, C52, C53, C54, C55, C56, C57, C58, C59],
+             [C61, C62, C63, C64, C65, C66, C67, C68, C69],
+             [C71, C72, C73, C74, C75, C76, C77, C78, C79],
+             [C81, C82, C83, C84, C85, C86, C87, C88, C89],
+             [C91, C92, C93, C94, C95, C96, C97, C98, C99]],
 
-    % tabuleiro do jogo (para resolver outro tabuleiro, alterar somente os operadores)
-    X11 #< X12, X12 #> X13,                     X14 #< X15, X15 #< X16,                     X17 #> X18, X18 #> X19,
-    X11 #< X21, X12 #> X22, X13 #> X23,         X14 #> X24, X15 #< X25, X16 #< X26,         X17 #> X27, X18 #< X28, X19 #< X29,
-    X21 #> X22, X22 #< X23,                     X24 #< X25, X25 #< X26,                     X27 #> X28, X28 #< X29,
-    X21 #> X31, X22 #< X32, X23 #< X33,         X24 #< X34, X25 #> X35, X26 #> X36,         X27 #< X37, X28 #< X38, X29 #< X39,
-    X31 #> X32, X32 #< X33,                     X34 #> X35, X35 #< X36,                     X37 #> X38, X38 #< X39,
+    % 2. Agrupar todas as 81 células em uma lista
+    flatten(Grade, TodasAsCelulas),
 
-    X41 #< X42, X42 #> X43,                     X44 #> X45, X45 #< X46,                     X47 #< X48, X48 #> X49,
-    X41 #> X51, X42 #< X52, X43 #< X53,         X44 #> X54, X45 #> X55, X46 #> X56,         X47 #< X57, X48 #> X58, X49 #< X59,
-    X51 #< X52, X52 #> X53,                     X54 #> X55, X55 #< X56,                     X57 #< X58, X58 #> X59,
-    X51 #< X61, X52 #> X62, X53 #> X63,         X54 #< X64, X55 #< X65, X56 #> X66,         X57 #> X67, X58 #> X68, X59 #< X69,
-    X61 #< X62, X62 #> X63,                     X64 #> X65, X65 #> X66,                     X67 #> X68, X68 #< X69,
+    % 3. Restrição de Domínio: cada célula deve ser um valor de 1 a 9
+    TodasAsCelulas ins 1..9,
 
-    X71 #> X72, X72 #< X73,                     X74 #< X75, X75 #< X76,                     X77 #> X78, X78 #< X79,
-    X71 #< X81, X72 #> X82, X73 #> X83,         X74 #< X84, X75 #< X85, X76 #> X86,         X77 #< X87, X78 #< X88, X79 #> X89,
-    X81 #> X82, X82 #> X83,                     X84 #> X85, X85 #> X86,                     X87 #< X88, X88 #> X89,
-    X81 #> X91, X82 #> X92, X83 #< X93,         X84 #> X94, X85 #< X95, X86 #< X96,         X87 #< X97, X88 #< X98, X89 #< X99,
-    X91 #> X92, X92 #> X93,                     X94 #< X95, X95 #> X96,                     X97 #< X98, X98 #< X99,
-    
-    % verifica se há algum elemento repetido nos blocos 
-    all_different([X11, X12, X13, X21, X22, X23, X31, X32, X33]),
-    all_different([X14, X15, X16, X24, X25, X26, X34, X35, X36]),
-    all_different([X17, X18, X19, X27, X28, X29, X37, X38, X39]),
-    all_different([X41, X42, X43, X51, X52, X53, X61, X62, X63]),
-    all_different([X44, X45, X46, X54, X55, X56, X64, X65, X66]),
-    all_different([X47, X48, X49, X57, X58, X59, X67, X68, X69]),
-    all_different([X71, X72, X73, X81, X82, X83, X91, X92, X93]),
-    all_different([X74, X75, X76, X84, X85, X86, X94, X95, X96]),
-    all_different([X77, X78, X79, X87, X88, X89, X97, X98, X99]),
-    
-    % verifica se há algum elemento repetido nas linhas
-    maplist(all_different, MatrizSolucao),
+    % 4. Restrições de Comparação (Específicas do Puzzle #190)
+    C11 #< C12, C12 #> C13,                     C14 #< C15, C15 #< C16,                     C17 #> C18, C18 #> C19,
+    C11 #< C21, C12 #> C22, C13 #> C23,         C14 #> C24, C15 #< C25, C16 #< C26,         C17 #> C27, C18 #< C28, C19 #< C29,
+    C21 #> C22, C22 #< C23,                     C24 #< C25, C25 #< C26,                     C27 #> C28, C28 #< C29,
+    C21 #> C31, C22 #< C32, C23 #< C33,         C24 #< C34, C25 #> C35, C26 #> C36,         C27 #< C37, C28 #< C38, C29 #< C39,
+    C31 #> C32, C32 #< C33,                     C34 #> C35, C35 #< C36,                     C37 #> C38, C38 #< C39,
 
-    % verifica se há algum elemento repetido nas colunas
-    transpose(MatrizSolucao, Transposta),
-    maplist(all_different, Transposta),
+    C41 #< C42, C42 #> C43,                     C44 #> C45, C45 #< C46,                     C47 #< C48, C48 #> C49,
+    C41 #> C51, C42 #< C52, C43 #< C53,         C44 #> C54, C45 #> C55, C46 #> C56,         C47 #< C57, C48 #> C58, C49 #< C59,
+    C51 #< C52, C52 #> C53,                     C54 #> C55, C55 #< C56,                     C57 #< C58, C58 #> C59,
+    C51 #< C61, C52 #> C62, C53 #> C63,         C54 #< C64, C55 #< C65, C56 #> C66,         C57 #> C67, C58 #> C68, C59 #< C69,
+    C61 #< C62, C62 #> C63,                     C64 #> C65, C65 #> C66,                     C67 #> C68, C68 #< C69,
 
-    % busca de soluções
-    label(Elementos).
+    C71 #> C72, C72 #< C73,                     C74 #< C75, C75 #< C76,                     C77 #> C78, C78 #< C79,
+    C71 #< C81, C72 #> C82, C73 #> C83,         C74 #< C84, C75 #< C85, C76 #> C86,         C77 #< C87, C78 #< C88, C79 #> C89,
+    C81 #> C82, C82 #> C83,                     C84 #> C85, C85 #> C86,                     C87 #< C88, C88 #> C89,
+    C81 #> C91, C82 #> C92, C83 #< C93,         C84 #> C94, C85 #< C95, C86 #< C96,         C87 #< C97, C88 #< C98, C89 #< C99,
+    C91 #> C92, C92 #> C93,                     C94 #< C95, C95 #> C96,                     C97 #< C98, C98 #< C99,
+
+    % 5. Restrições do Sudoku Padrão
+    % 5a. Todas as células em cada linha devem ser diferentes
+    maplist(all_distinct, Grade),
+
+    % 5b. Todas as células em cada coluna devem ser diferentes
+    transpose(Grade, GradeTransposta),
+    maplist(all_distinct, GradeTransposta),
+
+    % 5c. Todas as células em cada bloco 3x3 devem ser diferentes
+    all_distinct([C11, C12, C13, C21, C22, C23, C31, C32, C33]),
+    all_distinct([C14, C15, C16, C24, C25, C26, C34, C35, C36]),
+    all_distinct([C17, C18, C19, C27, C28, C29, C37, C38, C39]),
+    all_distinct([C41, C42, C43, C51, C52, C53, C61, C62, C63]),
+    all_distinct([C44, C45, C46, C54, C55, C56, C64, C65, C66]),
+    all_distinct([C47, C48, C49, C57, C58, C59, C67, C68, C69]),
+    all_distinct([C71, C72, C73, C81, C82, C83, C91, C92, C93]),
+    all_distinct([C74, C75, C76, C84, C85, C86, C94, C95, C96]),
+    all_distinct([C77, C78, C79, C87, C88, C89, C97, C98, C99]),
+
+    % 6. Iniciar a busca pela solução
+    label(TodasAsCelulas).
